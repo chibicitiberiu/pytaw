@@ -304,7 +304,7 @@ class YouTube(object):
         query = Query(self, 'channels', api_params)
         return ListResponse(query).first()
 
-    def playlist(self, id, **kwargs):
+    def playlist(self, id=None, url=None, **kwargs):
         """Fetch a Playlist instance.
 
         Additional API parameters should be given as keyword arguments.
@@ -315,8 +315,17 @@ class YouTube(object):
         """
         api_params = {
             'part': 'id',
-            'id': id,
         }
+
+        if id is not None:
+            api_params['id'] = id
+        elif url is not None:
+            parse = self.parse_url(url)
+            if 'playlist' in parse:
+                api_params['id'] = parse['playlist']
+        else:
+            raise ValueError('Please specify exactly one of: id, url')
+
         api_params.update(kwargs)
 
         query = Query(self, 'playlists', api_params)
