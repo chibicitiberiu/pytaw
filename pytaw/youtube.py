@@ -920,6 +920,7 @@ class Video(Resource):
         'tags': AttributeDef('snippet', 'tags', type_='list'),
         'channel_id': AttributeDef('snippet', 'channelId', type_='str'),
         'channel_title': AttributeDef('snippet', 'channelTitle', type_='str'),
+        'thumbnails': AttributeDef('snippet', 'thumbnails', type_='thumbnails'),
         #
         # contentDetails
         'duration': AttributeDef('contentDetails', 'duration', type_='timedelta'),
@@ -960,6 +961,7 @@ class Channel(Resource):
         'published_at': AttributeDef('snippet', 'publishedAt', type_='datetime'),
         'thumbnails': AttributeDef('snippet', 'thumbnails', type_='thumbnails'),
         'country': AttributeDef('snippet', 'country', type_='str'),
+        'custom_url': AttributeDef('snippet', 'customUrl', type_='str'),
         #
         # statistics
         'n_videos': AttributeDef('statistics', 'videoCount', type_='int'),
@@ -967,17 +969,16 @@ class Channel(Resource):
         'n_views': AttributeDef('statistics', 'viewCount', type_='int'),
         'n_comments': AttributeDef('statistics', 'commentCount', type_='int'),
         #
-        # playlists
+        # content details - playlists
         '_related_playlists': AttributeDef('contentDetails', 'relatedPlaylists')
     }
 
-    def get_uploads_playlist(self):
+    @property
+    def uploads_playlist(self):
         playlists = self._related_playlists
         if 'uploads' in playlists:
             return self.youtube.playlist(playlists['uploads'])
         return None
-
-    uploads_playlist = property(get_uploads_playlist)
 
     def most_recent_upload(self):
         response = self.most_recent_uploads(n=1)
@@ -1008,16 +1009,22 @@ class Playlist(Resource):
         'title': AttributeDef('snippet', 'title'),
         'description': AttributeDef('snippet', 'description'),
         'published_at': AttributeDef('snippet', 'publishedAt', type_='datetime'),
+        'thumbnails': AttributeDef('snippet', 'thumbnails', type_='thumbnails'),
+        'channel_id': AttributeDef('snippet', 'channelId', type_='str'),
+        'channel_title': AttributeDef('snippet', 'channelTitle', type_='str'),
     }
 
-    def get_items(self):
+    @property
+    def items(self):
         api_params = {
             'part': 'id,snippet',
             'maxResults': 50,
         }
         return self.youtube.playlist_items(self.id, **api_params)
 
-    items = property(get_items)
+    @property
+    def channel(self):
+        return self.youtube.channel(self.channel_id)
 
 
 class PlaylistItem(Resource):
@@ -1038,9 +1045,9 @@ class PlaylistItem(Resource):
         'resource_video_id': AttributeDef('snippet', ['resourceId', 'videoId'], type_='str'),
     }
 
-    def get_video(self):
+    @property
+    def video(self):
         if self.resource_kind == 'youtube#video':
             return self.youtube.video(self.resource_video_id)
         return None
 
-    video = property(get_video)
