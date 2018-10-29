@@ -168,7 +168,7 @@ class YouTube(object):
 
         return itertools.chain(response_list)
 
-    def channel(self, id, **kwargs):
+    def channel(self, channel_id=None, username=None, **kwargs):
         """Fetch a Channel instance.
 
         Additional API parameters should be given as keyword arguments.
@@ -179,8 +179,15 @@ class YouTube(object):
         """
         api_params = {
             'part': 'id',
-            'id': id,
         }
+
+        if channel_id is not None:
+            api_params['id'] = channel_id
+        elif username is not None:
+            api_params['forUsername'] = username
+        else:
+            raise ValueError('Please specify exactly one of: channel_id, username')
+
         api_params.update(kwargs)
 
         query = Query(self, 'channels', api_params)
