@@ -1,13 +1,11 @@
-from datetime import timedelta
-import os
-import time
-import logging
-import configparser
 import collections
+import configparser
 import itertools
-from pprint import pprint, pformat
-from abc import ABC, abstractmethod
+import logging
+import os
 import typing
+from abc import ABC, abstractmethod
+from datetime import timedelta
 
 import googleapiclient.discovery
 from oauth2client.client import AccessTokenCredentials
@@ -18,7 +16,6 @@ from .utils import (
     youtube_duration_to_seconds,
     iterate_chunks,
 )
-
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.DEBUG)
